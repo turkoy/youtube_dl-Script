@@ -1,0 +1,112 @@
+    #! /bin/bash
+osascript -e 'tell application "Terminal" to set bounds of front window to {0, 23, 1440, 833}'
+
+    clear
+
+
+
+    # - WELCOME MESSAGE -
+
+    echo
+
+    COLUMNS=$(tput cols)
+    title="-= Youtube Indirme Aracı ( by - turkoY  v1.1 ) =-" 
+    printf "%*s\n" $(((${#title}+$COLUMNS)/2)) "$title"
+Echo
+Echo
+Echo "Lütfen Bekleyiniz güncelleme kontrol ediliyor"
+youtube-dl -U
+Echo
+Echo
+    # - PASTE URL -
+
+    echo "\n*** - Lütfen İndirmek istediğiniz YouTube Adresini yapıştırarak enter basınız. "
+Echo    
+echo "Örnek : \nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ --veya-- https://youtu.be/dQw4w9WgXcQ\n"
+
+    read -p "Link Giriniz : " url
+
+
+
+    # - VIDEO TITLE -
+
+    # So users know they have the correct URL.
+
+    echo "\nYapıştırılan video : ( bekleyiniz detay alınıyor ...)"
+Echo
+youtube-dl -e $url
+    #echo
+
+
+
+    # - DOWNLOAD LOCATION -
+
+
+    # DIRECTORY MUST END WITH SLASH: /
+
+
+    echo "\n\n*** - Lütfen İndirilecek Yeri Seçiniz:\n"
+
+    COLUMNS=0
+    PS3='Seçim Yapınız: '
+    select directory in "~/Desktop/Youtube/" ; do
+    echo "\nSeçim $REPLY olarak Seçildi. İndirilecek Yer :\n $directory"
+
+
+
+    # - AUDIO/VIDEO SETTINGS -
+
+    echo "\n\n*** - Nasıl İndiriceksiniz ?:\n"
+
+    COLUMNS=0
+    PS3='Seçim Yapınız : '
+    options=("Ses & Video" "Sadece Mp3")
+    select settingsopt in "${options[@]}"
+    do
+    case $settingsopt in
+
+    "Ses & Video")
+Echo "Video Bilgileri Getiriliyor..."
+Echo 
+youtube-dl -F $url
+
+Echo
+Echo "Lütfen video ve Ses için format-code'ları yazıp enter basınız"
+Echo
+Echo " Örnek : 137+140  Şeklinde aralarına + (artı) ile yazınız"
+Echo 
+read -p "Format-Code Giriniz : " videocode
+Echo 
+
+av="-f $videocode -i --merge-output-format mp4 --ignore-config --hls-prefer-native"
+
+    ;;
+
+    "Sadece Mp3")
+    av="--extract-audio --audio-format mp3 --audio-quality 320K "
+    ;;
+
+    esac
+
+    echo "\nİndirme $REPLY Tipi:\n $settingsopt"
+
+
+
+    # - THE DOWNLOAD SCRIPT -
+
+    echo "\n\n*** - İndirme İşlemi Başlıyor:\n"
+    youtube-dl -o "$directory%(title)s/%(title)s.%(ext)s" $av --write-thumbnail --ignore-errors $url
+
+
+
+	# - THE END -
+
+    echo
+    COLUMNS=$(tput cols) 
+    ending="İndirme ve çevirme İşlemi Tamamlandı..!"
+    printf "%*s\n\n" $(((${#ending}+$COLUMNS)/2)) "$ending"
+
+    exit
+
+    done
+    done
